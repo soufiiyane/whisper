@@ -1,0 +1,8 @@
+{
+	"httpMethod": "POST",
+    "body": "{\"firstName\":\"John\",\"lastName\":\"Doe\",\"userName\":\"johndoe\",\"password\":\"1234\"}",
+	"resource": "/signup",
+	 "headers": {
+        "Content-Type": "application/json"
+    }
+}
