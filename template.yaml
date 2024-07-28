@@ -4,6 +4,12 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   Whisper IaC using AWS SAM
 
+Parameters:
+  DomainName:
+    Type: String
+    Default: "whisper-anonymously"
+    Description: "The domain name for the Cognito User Pool."
+
 Resources:
 
   # Note: when using Cognito Host UI, you will have by default a password input.
@@ -77,13 +83,13 @@ Resources:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
       UserPoolId: !Ref whisperUserPool
-      Domain: "whisperanonymously"
+      Domain: !Ref DomainName
 
   # Note: in my case i didn't customize th Cognito Host UI.
 
   userPoolUICustomization:
     Type: AWS::Cognito::UserPoolUICustomizationAttachment
-    DependsOn: UserPoolDomain
+    DependsOn: userPoolDomain
     Properties:
       UserPoolId: !Ref whisperUserPool
       ClientId: 'ALL'
@@ -135,3 +141,30 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
+
+  # Outputs Section
+
+Outputs:
+  ApiUrl:
+    Description: "URL of the API Gateway"
+    Value: !Sub "https://${whisperApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+
+  PublishQuestionLambdaArn:
+    Description: "ARN of the PublishQuestion Lambda function"
+    Value: !GetAtt publishQuestionLambda.Arn
+
+  UserPoolId:
+    Description: "ID of the Cognito User Pool"
+    Value: !Ref whisperUserPool
+
+  UserPoolClientId:
+    Description: "ID of the Cognito User Pool Client"
+    Value: !Ref whisperUserPoolClient
+
+  UserPoolDomain:
+    Description: "Domain name for the Cognito User Pool"
+    Value: !Sub "https://${DomainName}.auth.${AWS::Region}.amazoncognito.com"
+
+  UserPoolHostUI:
+    Description: "URL for Cognito User Pool Hosted UI"
+    Value: !Sub "https://${DomainName}.auth.${AWS::Region}.amazoncognito.com/oauth2/authorize?response_type=code&client_id=${whisperUserPoolClient}&redirect_uri=http://localhost"

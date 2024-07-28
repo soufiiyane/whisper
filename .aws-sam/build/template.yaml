@@ -1,0 +1,155 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Whisper IaC using AWS SAM
+
+  '
+Parameters:
+  DomainName:
+    Type: String
+    Default: whisper-anonymously
+    Description: The domain name for the Cognito User Pool.
+Resources:
+  whisperUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: Whisper_pool
+      MfaConfiguration: 'OFF'
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      UsernameAttributes:
+      - email
+      AutoVerifiedAttributes:
+      - email
+      Schema:
+      - AttributeDataType: String
+        Name: email
+        Required: true
+      - AttributeDataType: String
+        Name: given_name
+        Mutable: true
+        Required: true
+      - AttributeDataType: String
+        Name: family_name
+        Mutable: true
+        Required: true
+      EmailConfiguration:
+        EmailSendingAccount: COGNITO_DEFAULT
+      EmailVerificationSubject: Please verify your email address
+      EmailVerificationMessage: Your verification code is {####}. Please enter this
+        code to verify your email address.
+  whisperUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: whisper_client
+      UserPoolId:
+        Ref: whisperUserPool
+      GenerateSecret: false
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows:
+      - code
+      AllowedOAuthScopes:
+      - email
+      - openid
+      - profile
+      - aws.cognito.signin.user.admin
+      CallbackURLs:
+      - http://localhost
+      ExplicitAuthFlows:
+      - ALLOW_CUSTOM_AUTH
+      - ALLOW_ADMIN_USER_PASSWORD_AUTH
+      - ALLOW_USER_PASSWORD_AUTH
+      - ALLOW_USER_SRP_AUTH
+      - ALLOW_REFRESH_TOKEN_AUTH
+      SupportedIdentityProviders:
+      - COGNITO
+      RefreshTokenValidity: 30
+      AccessTokenValidity: 1
+      IdTokenValidity: 1
+  userPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      UserPoolId:
+        Ref: whisperUserPool
+      Domain:
+        Ref: DomainName
+  userPoolUICustomization:
+    Type: AWS::Cognito::UserPoolUICustomizationAttachment
+    DependsOn: userPoolDomain
+    Properties:
+      UserPoolId:
+        Ref: whisperUserPool
+      ClientId: ALL
+  whisperApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors: '''*'''
+      Auth:
+        DefaultAuthorizer: MyCognitoAuthorizer
+        Authorizers:
+          MyCognitoAuthorizer:
+            UserPoolArn:
+              Fn::GetAtt:
+              - whisperUserPool
+              - Arn
+  publishQuestionLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: publishQuestionLambda
+      Handler: publishQuestion.lambda_handler
+      Runtime: python3.10
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: questionsDynamoDBTable
+      Events:
+        publishQuestion:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: whisperApi
+            Path: /question
+            Method: post
+    Metadata:
+      SamResourceId: publishQuestionLambda
+  questionsDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: questions
+      AttributeDefinitions:
+      - AttributeName: userName
+        AttributeType: S
+      KeySchema:
+      - AttributeName: userName
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+Outputs:
+  ApiUrl:
+    Description: URL of the API Gateway
+    Value:
+      Fn::Sub: https://${whisperApi}.execute-api.${AWS::Region}.amazonaws.com/Prod
+  PublishQuestionLambdaArn:
+    Description: ARN of the PublishQuestion Lambda function
+    Value:
+      Fn::GetAtt:
+      - publishQuestionLambda
+      - Arn
+  UserPoolId:
+    Description: ID of the Cognito User Pool
+    Value:
+      Ref: whisperUserPool
+  UserPoolClientId:
+    Description: ID of the Cognito User Pool Client
+    Value:
+      Ref: whisperUserPoolClient
+  UserPoolDomain:
+    Description: Domain name for the Cognito User Pool
+    Value:
+      Fn::Sub: https://${DomainName}.auth.${AWS::Region}.amazoncognito.com
+  UserPoolHostUI:
+    Description: URL for Cognito User Pool Hosted UI
+    Value:
+      Fn::Sub: https://${DomainName}.auth.${AWS::Region}.amazoncognito.com/oauth2/authorize?response_type=code&client_id=${whisperUserPoolClient}&redirect_uri=http://localhost
