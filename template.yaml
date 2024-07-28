@@ -1,24 +1,108 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
+
 Description: >
   Whisper IaC using AWS SAM
 
 Resources:
-  createAccountLambdaFunction:
-    Type: AWS::Serverless::Function
+
+  # Note: when using Cognito Host UI, you will have by default a password input.
+  # If you use AWS CLI to sign up the user, the user will receive an email with a temporary password,
+  # and then they have to use Cognito Host UI to log in so they can set a new password.
+  # I didn't add the Password attribute in the schema because there's a bug in CloudFormation (AWS SAM)
+  # related to this case.
+
+  whisperUserPool:
+    Type: AWS::Cognito::UserPool
     Properties:
-      CodeUri: src/
-      Handler: createAccount.lambda_handler
-      Runtime: python3.10
+      UserPoolName: Whisper_pool
+      MfaConfiguration: "OFF"
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref usersDynamoDBTable
-      Events:
-        createAccountApi:
-          Type: Api
-          Properties:
-            Path: /signup
-            Method: post
+        PasswordPolicy:
+          MinimumLength: 8
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: true
+        - AttributeDataType: String
+          Name: given_name
+          Mutable: true
+          Required: true
+        - AttributeDataType: String
+          Name: family_name
+          Mutable: true
+          Required: true
+      EmailConfiguration:
+        EmailSendingAccount: COGNITO_DEFAULT
+      EmailVerificationSubject: "Please verify your email address"
+      EmailVerificationMessage: "Your verification code is {####}. Please enter this code to verify your email address."
+
+  # Note: u can change CallbackURLs to any url u want, but it must be only https, for localhost aws no problem to use http.
+
+  whisperUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: whisper_client
+      UserPoolId: !Ref whisperUserPool
+      GenerateSecret: false
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+        - aws.cognito.signin.user.admin
+      CallbackURLs:
+        - "http://localhost"
+      ExplicitAuthFlows:
+        - ALLOW_CUSTOM_AUTH
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      SupportedIdentityProviders:
+        - COGNITO
+      RefreshTokenValidity: 30
+      AccessTokenValidity: 1
+      IdTokenValidity: 1
+
+  # Note: the domain name must be unique and lowerCase only.
+
+  userPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      UserPoolId: !Ref whisperUserPool
+      Domain: "whisperanonymously"
+
+  # Note: in my case i didn't customize th Cognito Host UI.
+
+  userPoolUICustomization:
+    Type: AWS::Cognito::UserPoolUICustomizationAttachment
+    DependsOn: UserPoolDomain
+    Properties:
+      UserPoolId: !Ref whisperUserPool
+      ClientId: 'ALL'
+
+  # WhisperApi integrated with Cognito for authorization
+
+  whisperApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: MyCognitoAuthorizer
+        Authorizers:
+          MyCognitoAuthorizer:
+            UserPoolArn: !GetAtt whisperUserPool.Arn
+
+  # LambdaFunction for publishing questions to users via API Gateway
+
   publishQuestionLambda:
     Type: AWS::Serverless::Function
     Properties:
@@ -27,33 +111,17 @@ Resources:
       Runtime: python3.10
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref usersDynamoDBTable
-        - DynamoDBCrudPolicy:
             TableName: !Ref questionsDynamoDBTable
       Events:
         publishQuestion:
           Type: Api
           Properties:
+            RestApiId: !Ref whisperApi
             Path: /question
             Method: post
 
-  usersDynamoDBTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: users
-      AttributeDefinitions:
-        - AttributeName: Id
-          AttributeType: S
-        - AttributeName: Date
-          AttributeType: S
-      KeySchema:
-        - AttributeName: Id
-          KeyType: HASH
-        - AttributeName: Date
-          KeyType: RANGE
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+  # DynamoDB table
+
   questionsDynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
