@@ -107,6 +107,25 @@ Resources:
           MyCognitoAuthorizer:
             UserPoolArn: !GetAtt whisperUserPool.Arn
 
+
+  getTokenAuthorization:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.10
+      CodeUri: src/
+      Handler: getTokenAuthorization.lambda_handler
+      Events:
+        getTokenApi:
+          Type: Api
+          Properties:
+            Path: /token
+            Method: post
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref whisperUserPool
+          CLIENT_ID: !Ref whisperUserPoolClient
+
+
   # LambdaFunction for publishing questions to users via API Gateway
 
   publishQuestionLambda:

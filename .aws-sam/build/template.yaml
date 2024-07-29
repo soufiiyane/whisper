@@ -93,6 +93,26 @@ Resources:
               Fn::GetAtt:
               - whisperUserPool
               - Arn
+  getTokenAuthorization:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.10
+      CodeUri: getTokenAuthorization
+      Handler: getTokenAuthorization.lambda_handler
+      Events:
+        getTokenApi:
+          Type: Api
+          Properties:
+            Path: /token
+            Method: post
+      Environment:
+        Variables:
+          USER_POOL_ID:
+            Ref: whisperUserPool
+          CLIENT_ID:
+            Ref: whisperUserPoolClient
+    Metadata:
+      SamResourceId: getTokenAuthorization
   publishQuestionLambda:
     Type: AWS::Serverless::Function
     Properties:

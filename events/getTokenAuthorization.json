@@ -1,6 +1,6 @@
 {
 	"httpMethod": "POST",
-    "body": "{\"firstName\":\"John\",\"lastName\":\"Doe\",\"userName\":\"johndoe\",\"password\":\"1234\"}",
+    "body": "{\"email\":\"soufiyane.aitmoulay@gmail.com\",\"password\":\"0655404744\"}",
 	"resource": "/signup",
 	 "headers": {
         "Content-Type": "application/json"
