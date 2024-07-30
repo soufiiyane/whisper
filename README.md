@@ -192,17 +192,17 @@ By following these steps, you can verify that your Whisper application is functi
 
 ### Cognito User Pool and Hosted UI
 
-| ![Cognito User Pool](Screenshots/CognitoUserPool.png) | ![Cognito Hosted UI Sign-Up](Screenshots/CognitoHostUi Sign-up.png) | ![Cognito Hosted UI Sign-In](Screenshots/CognitoHostUi Sign-in.png) |
+| ![Cognito User Pool](Screenshots/CognitoUserPool.png) | ![Cognito Hosted UI Sign-Up](Screenshots/CognitoHostUiSign-up.png) | ![Cognito Hosted UI Sign-In](Screenshots/CognitoHostUiSign-in.png) |
 |:---------------------------------------------------:|:--------------------------------------------------------------:|:------------------------------------------------------------:|
 
 ### APIs with Postman
 
-| ![Postman Token API](Screenshots/Postman TokenApi.png) | ![Postman Question API](Screenshots/Postman QuestionApi.png) | ![Postman Question API v2](Screenshots/Postman QuestionApiv2.png) |
+| ![Postman Token API](Screenshots/PostmanTokenApi.png) | ![Postman Question API](Screenshots/PostmanQuestionApi.png) | ![Postman Question API v2](Screenshots/PostmanQuestionApiv2.png) |
 |:-------------------------------------------------------:|:----------------------------------------------------------:|:--------------------------------------------------------------:|
 
 ### CloudFormation Stack
 
-| ![CloudFormation Stack](Screenshots/cloudFormation Stack.png) |
+| ![CloudFormation Stack](Screenshots/cloudFormationStack.png) |
 |:---------------------------------------------------------------:|
 
 ## Troubleshooting
