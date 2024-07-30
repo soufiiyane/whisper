@@ -107,8 +107,6 @@ Resources:
             Method: post
       Environment:
         Variables:
-          USER_POOL_ID:
-            Ref: whisperUserPool
           CLIENT_ID:
             Ref: whisperUserPoolClient
     Metadata:
@@ -123,6 +121,15 @@ Resources:
       - DynamoDBCrudPolicy:
           TableName:
             Ref: questionsDynamoDBTable
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - cognito-idp:AdminGetUser
+          Resource:
+            Fn::GetAtt:
+            - whisperUserPool
+            - Arn
       Events:
         publishQuestion:
           Type: Api
@@ -131,6 +138,12 @@ Resources:
               Ref: whisperApi
             Path: /question
             Method: post
+      Environment:
+        Variables:
+          USER_POOL_ID:
+            Ref: whisperUserPool
+          CLIENT_ID:
+            Ref: whisperUserPoolClient
     Metadata:
       SamResourceId: publishQuestionLambda
   questionsDynamoDBTable:
