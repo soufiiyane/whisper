@@ -1,8 +1,0 @@
-{
-	"httpMethod": "POST",
-    "body": "{\"userName\":\"johndoe\",\"question\":\"1234\"}",
-	"resource": "/question",
-	 "headers": {
-        "Content-Type": "application/json"
-    }
-}

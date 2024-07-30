@@ -1,8 +1,0 @@
-{
-	"httpMethod": "POST",
-    "body": "{\"email\":\"soufiyane.aitmoulay@gmail.com\",\"password\":\"0655404744\"}",
-	"resource": "/signup",
-	 "headers": {
-        "Content-Type": "application/json"
-    }
-}

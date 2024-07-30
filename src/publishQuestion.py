@@ -25,6 +25,7 @@ def lambda_handler(event, context):
                 'body': json.dumps({'msg': 'UUID field is missing'})
             }
         uuid = body["uuid"]
+        question = body["question"]
 
         response = cognito_client.admin_get_user(
             UserPoolId=user_pool_id,
@@ -38,7 +39,7 @@ def lambda_handler(event, context):
 
         question_item = {
             'userName': username,
-            'question': "question me",
+            'question': question,
             'Date': str(datetime.datetime.now())
         }
         table_questions = dynamodb_client.Table(table_name)

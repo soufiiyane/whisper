@@ -1,0 +1,101 @@
+{
+	"info": {
+		"_postman_id": "1577f9ff-74b5-428f-b31a-9c21ec8fca46",
+		"name": "whisper",
+		"description": "whisper AWS Gateway Apis",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28170441"
+	},
+	"item": [
+		{
+			"name": "publish question",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJraWQiOiJFYUYrUUw2RVwvc05SOEdsd3U0QzRmekVVTURcLzNSdDFmOGMwdUZRbVl6VTg9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiIzNGI4ZDQ1OC00MDUxLTcwYzItY2E4My1jN2I2YmNjYzYyZTEiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfendraE9HeE10IiwiY29nbml0bzp1c2VybmFtZSI6IjM0YjhkNDU4LTQwNTEtNzBjMi1jYTgzLWM3YjZiY2NjNjJlMSIsImdpdmVuX25hbWUiOiJzb3VmaXlhbmUiLCJvcmlnaW5fanRpIjoiMmFkNDEzYjMtOTU5Ny00ZjUwLTg3ZTEtNWExYjIxYjZhYmRiIiwiYXVkIjoiM3BhaWxhcXFodHB2M2pzcWY4NW9nZDdxNW4iLCJldmVudF9pZCI6IjBmM2UyZjhlLTAxMTQtNGFkMS1iNGZhLWIyNWIyMWYxNTU3OSIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNzIyMzQxMDg1LCJleHAiOjE3MjIzNDQ2ODUsImlhdCI6MTcyMjM0MTA4NSwiZmFtaWx5X25hbWUiOiJBaXRtb3VsYXkiLCJqdGkiOiIxZWI3NjgyOC03MjQ4LTQ0NzctOTIxOC0xMzJmYmQyYTU4YjAiLCJlbWFpbCI6InNvdWZpeWFuZS5haXRtb3VsYXlAZ21haWwuY29tIn0.g6eheqhO4UI47IDtV2nhlPPpt1BvjIo1vZfIXO4msk65nRguCi9SHbxMM9QmHi4JVgkUwu9ToZSjArlTicPkkaAJHK3thXO_qPl9JN5Iwjbh60FXqXMK5UijtAJ34UwAKqS4LZf9jRpp9jegWSLc2Nk9GKKUZwGyG17rnM0mRCQwxQSPFwN1SNGtvuW5XNuslXYBjMEfCT276_GmSB-BfuTJZkxAAPIrRpXaVbllb-QAzK94-hErL8c04oZk_panVM2Show7YUTxltfGAXbqRdVVXpikLa-bJZ4-pGmSoaGHifaza3UX05tO6LhkAoxM94kZTJAallBo2Mth0_UX0A",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uuid\" : \"34b8d458-4051-70c2-ca83-c7b6bccc62e1\",\n    \"question\" : \"how do u feel lately ?\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://c1052wel91.execute-api.us-east-1.amazonaws.com/Prod/question",
+					"protocol": "https",
+					"host": [
+						"c1052wel91",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"Prod",
+						"question"
+					]
+				},
+				"description": "publish a question anonymously to a user"
+			},
+			"response": []
+		},
+		{
+			"name": "token authorization",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\" : \"soufiyane.aitmoulay@gmail.com\",\n    \"password\" : \"0655404744\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://y94u30pydj.execute-api.us-east-1.amazonaws.com/Prod/token",
+					"protocol": "https",
+					"host": [
+						"y94u30pydj",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"Prod",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
